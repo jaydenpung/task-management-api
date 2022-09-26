@@ -11,16 +11,15 @@ export abstract class BaseQueryBuilder {
 
   constructor(private readonly qs: BaseQueryParameterDTO) {}
 
-  setQuery<T>(model: Repository<T>, conditions?: object) {
-    const whereConditions: object = {
-      //   $and: [{ deleted: null }],
-      //   ...conditions,
-      //   ...this.getWhere(),
-    };
+  setQuery<T>(model: Repository<T>) {
+    const whereConditions: object[] = this.getWhere();
 
-    const query = model
-      .createQueryBuilder()
-      .where(whereConditions)
+    const query = model.createQueryBuilder();
+    for (const condition of whereConditions) {
+      query.andWhere(condition['where'], condition['parameters']);
+    }
+
+    query
       .offset(this.getOffset())
       .limit(this.getLimit())
       .orderBy(this.getOrderBy());
@@ -40,11 +39,8 @@ export abstract class BaseQueryBuilder {
     return PaginationBuilder.build(total, this.getQs());
   }
 
-  async getPagination<T>(
-    model: Repository<T>,
-    conditions?: object,
-  ): Promise<Pagination> {
-    const query = this.setQuery(model, conditions);
+  async getPagination<T>(model: Repository<T>): Promise<Pagination> {
+    const query = this.setQuery(model);
 
     query.skip(0);
     query.limit(null);
@@ -54,11 +50,11 @@ export abstract class BaseQueryBuilder {
     return PaginationBuilder.build(total, this.getQs());
   }
 
-  protected getWhere(): object {
-    const conditions = {};
+  protected getWhere(): object[] {
+    const conditions = [];
     Object.keys(this.qs || {}).forEach((key: string | number) => {
       if (this[key]) {
-        Object.assign(conditions, this[key](this.qs[key]));
+        conditions.push(this[key](this.qs[key]));
       }
     });
 
