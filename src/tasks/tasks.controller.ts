@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { IdParameterDTO } from 'src/common/dto/id-parameter.dto';
 import { TasksService } from './tasks.service';
@@ -13,6 +14,9 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 import { TaskDTO } from './dto/task.dto';
+import { TaskQueryParameterDTO } from './dto/task-query-parameter.dto';
+import { TaskQueryParameter } from './query-parameter/task-query-parameter';
+import { Pagination } from 'src/common/pagination/pagination';
 
 @Controller('tasks')
 export class TasksController {
@@ -25,8 +29,14 @@ export class TasksController {
   }
 
   @Get()
-  async findAll() {
-    const result = await this.tasksService.findAll();
+  async findAll(@Query() queryParameters: TaskQueryParameterDTO) {
+    const queryFilter = new TaskQueryParameter(queryParameters);
+
+    const result = await this.tasksService.findAll(queryFilter);
+    if (queryFilter.hasPaginationMeta()) {
+      return result as Pagination;
+    }
+
     return (result as Task[]).map<TaskDTO>(TaskDTO.mutate);
   }
 
