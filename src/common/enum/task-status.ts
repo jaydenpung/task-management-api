@@ -1,5 +1,5 @@
 export enum TaskStatus {
-  NOT_URGENT,
-  DUE_SOON,
-  OVERDUE,
+  NOT_URGENT = 'Not Urgent',
+  DUE_SOON = 'Due Soon',
+  OVERDUE = 'Overdue',
 }

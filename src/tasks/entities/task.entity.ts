@@ -16,8 +16,5 @@ export class Task {
   dueDate: Date;
 
   @Column()
-  status: TaskStatus;
-
-  @Column()
   createdAt: Date;
 }

@@ -1,26 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { TaskDTO } from './dto/task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { ViewTaskDTO } from './dto/view-task.dto';
+import { Task } from './entities/task.entity';
 
 @Injectable()
 export class TasksService {
-  create(createTaskDto: CreateTaskDto) {
-    return 'This action adds a new task';
+  constructor(
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
+  ) {}
+
+  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+    return await this.taskRepository.save({
+      ...createTaskDto,
+      createdAt: new Date(),
+    });
   }
 
-  findAll() {
-    return `This action returns all tasks`;
+  async findAll(): Promise<Task[]> {
+    return await this.taskRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: number): Promise<ViewTaskDTO> {
+    const task = await this.taskRepository.findOneBy({ id });
+
+    if (!task) {
+      throw new NotFoundException();
+    }
+
+    return {
+      ...TaskDTO.mutate(task),
+      description: task.description,
+    } as ViewTaskDTO;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: number, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    const task = await this.taskRepository.findOneBy({ id: id });
+
+    if (!task) {
+      throw new NotFoundException();
+    }
+
+    return await this.taskRepository.save({
+      id: task.id,
+      name: updateTaskDto.name ?? task.name,
+      description: updateTaskDto.description ?? task.description,
+      dueDate: updateTaskDto.dueDate ?? task.dueDate,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: number): Promise<Task> {
+    const task = await this.taskRepository.findOneBy({ id });
+
+    if (!task) {
+      throw new NotFoundException();
+    }
+
+    return await this.taskRepository.remove(task);
   }
 }
