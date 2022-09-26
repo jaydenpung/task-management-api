@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 export class TaskDTO {
   id: number;
   name: string;
+  description: string;
   status: TaskStatus;
   dueDate: Date;
   createdAt: Date;
@@ -13,6 +14,7 @@ export class TaskDTO {
     const dto = new TaskDTO();
     dto.id = task.id;
     dto.name = task.name || null;
+    dto.description = task.description || null;
     dto.status = TaskDTO.getStatus(task.dueDate);
     dto.dueDate = task.dueDate || null;
     dto.createdAt = task.createdAt || null;

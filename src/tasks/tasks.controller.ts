@@ -42,7 +42,8 @@ export class TasksController {
 
   @Get(':id')
   async findOne(@Param() { id }: IdParameterDTO) {
-    return await this.tasksService.findOne(id);
+    const task = await this.tasksService.findOne(id);
+    return TaskDTO.mutate(task);
   }
 
   @Patch(':id')

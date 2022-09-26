@@ -3,9 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Pagination } from 'src/common/pagination/pagination';
 import { Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { TaskDTO } from './dto/task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { ViewTaskDTO } from './dto/view-task.dto';
 import { Task } from './entities/task.entity';
 import { TaskQueryParameter } from './query-parameter/task-query-parameter';
 
@@ -31,17 +29,14 @@ export class TasksService {
     return queryFilter.setQuery(this.taskRepository).getMany();
   }
 
-  async findOne(id: number): Promise<ViewTaskDTO> {
+  async findOne(id: number): Promise<Task> {
     const task = await this.taskRepository.findOneBy({ id });
 
     if (!task) {
       throw new NotFoundException();
     }
 
-    return {
-      ...TaskDTO.mutate(task),
-      description: task.description,
-    } as ViewTaskDTO;
+    return task;
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto): Promise<Task> {
