@@ -27,4 +27,3 @@ This api endpoint is built with nest.js framework, connects to mysql database wi
 - Implement Unit test
 - Current query builder cannot support complex nested `where` conditions, need to look further in library for more customizeable solutions or switch to another ORM library
 - Handle multiple search criteria, multiple sort columns
-- Deal with timezone. Save and return all as utc. FE translate to locale time
